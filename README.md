@@ -1,1 +1,1 @@
-# my_pkgbuilds
+# Home of PKGBUILDs written by me.
