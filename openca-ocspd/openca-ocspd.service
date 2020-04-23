@@ -1,0 +1,18 @@
+[Unit]
+Description=OpenCA OCSP Responder (OCSPD)
+Documentation=man:ocspd(3) man:ocspd.conf(3)
+After=syslog.target network.target
+Wants=network.service
+
+[Service]
+Type=forking
+PIDFile=/run/ocspd.pid
+ExecStart=/usr/bin/ocspd -d -c /etc/ocspd/ocspd.xml
+ExecReload=/bin/kill -s HUP ${MAINPID}
+ExecStop=/bin/kill -s TERM ${MAINPID}
+KillMode=process
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,36 @@
+pkgname=libpki-git
+pkgver=v0.8.9.r176.g290e497
+pkgrel=1
+pkgdesc="Provides an easy-to-use PKI library for PKI enabled application development"
+arch=('i686' 'x86_64')
+url="https://pki.openca.org"
+license=('GPL2')
+depends=('libxml2' 'openssl')
+optdepends=(
+  'libldap: LDAP backend support'
+  'libmysqlclient: MySQL backend support'
+  'postgresql-libs: PostgreSQL backend support'
+)
+makedepends=('git')
+options=('!libtool')
+provides=("${pkgname%-git}")
+conflicts=("${pkgname%-git}")
+source=("git+https://github.com/kmosolov/${pkgname%-git}.git#branch=dev")
+md5sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/${pkgname%-git}"
+  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+  cd "$srcdir/${pkgname%-git}"
+  ./configure --prefix=/usr --with-libdir=/usr/lib --
+  make
+}
+
+package() {
+  cd "$srcdir/${pkgname%-git}"
+  make DESTDIR="$pkgdir" install
+  mv $pkgdir/usr/etc $pkgdir/
+}

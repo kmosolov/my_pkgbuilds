@@ -1,1 +1,1 @@
-# Home of PKGBUILDs written by me.
+# Home for PKGBUILDs written by me.

@@ -1,0 +1,45 @@
+pkgname=openca-ocspd-git
+pkgver=v3.1.2.r14.g7338939
+pkgrel=1
+pkgdesc='OpenCA OCSP Responder'
+url='https://pki.openca.org/projects/ocspd/'
+arch=('i686' 'x86_64')
+license=('Apache')
+depends=('openssl' 'libpki-git')
+makedepends=('git')
+provides=("${pkgname%-git}")
+conflicts=("${pkgname%-git}")
+source=("${pkgname%-git}.service" "${pkgname%-git}.patch" "git+https://github.com/kmosolov/${pkgname%-git}.git#branch=dev")
+md5sums=('b0785d4226ba7396b902051d3d4be046'
+         '89c7f3f8103c906dcf2b96479877b018'
+         'SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname%-git}"
+    patch --forward --strip=1 --input="${srcdir}/${pkgname%-git}.patch"
+}
+
+pkgver() {
+  cd "$srcdir/${pkgname%-git}"
+  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+  cd "${srcdir}/${pkgname%-git}"
+  ./configure --prefix=/usr --sbindir=/usr/bin
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname%-git}"
+  make DESTDIR="${pkgdir}" install
+  mv $pkgdir/usr/etc $pkgdir/
+  chrpath -d $pkgdir/usr/bin/ocspd
+  rm $pkgdir/usr/bin/*.sh
+  rm $pkgdir/etc/ocspd/ca.d/collegeca.xml
+  rm $pkgdir/etc/ocspd/pki/token.d/e*.xml
+  rm -r $pkgdir/etc/init.d
+  rm -r $pkgdir/usr/var
+  mkdir -p "${pkgdir}/usr/lib/systemd/system/"
+  cp -L "${srcdir}/${pkgname%-git}.service" "${pkgdir}/usr/lib/systemd/system/"
+}
